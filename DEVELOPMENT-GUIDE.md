@@ -1,0 +1,31 @@
+# Geliştirme Rehberi (Adım Adım)
+
+| Adım/Fonksiyon                                             | Durum        | Açıklama                                                                                 |
+|------------------------------------------------------------|--------------|-----------------------------------------------------------------------------------------|
+| Proje yapısı ve modeller                                   | Bitti        | Temel mimari ve ana modeller oluşturuldu.                                               |
+| Repository Pattern                                         | Bitti        | Repository pattern uygulandı.                                                           |
+| Service Layer                                              | Bitti        | Servis katmanı tamamlandı.                                                              |
+| Event System (OrderCreatedEvent handler bağlı)             | Bitti        | Event sistemi, OrderCreatedEvent için handler bağlı.                                     |
+| Admin paneli                                               | Bitti        | Django Admin paneli yapılandırıldı.                                                     |
+| API Endpoints (users, products, orders, subscription, analytics) | Bitti   | Tüm gerekli API endpoint'leri eklendi.                                                 |
+| JWT authentication                                         | Bitti        | JWT tabanlı authentication eklendi.                                                     |
+| CORS ayarları                                              | Bitti        | Ortam bağımlı CORS ayarları yapılandırıldı.                                              |
+| Redis cache (analytics'te kullanılıyor)                    | Bitti        | Redis entegrasyonu, analytics modülünde aktif.                                          |
+| Migrations                                                 | Bitti        | Tüm migration'lar oluşturuldu ve uygulandı.                                             |
+| Product Usage Tracking entegrasyonu                        | Yapılacak    | ProductService'te UsageTracking entegrasyonu eksik.                                     |
+| Testler: Unit testler (services, repositories)             | Yapılıyor    | Unit test hazırlıkları başladı.                                                         |
+| Testler: API endpoint testleri                             | Yapılacak    | API testi yazılacak.                                                                    |
+| Testler: Integration testler                               | Yapılacak    | Integration testler eksik.                                                              |
+| Error handling iyileştirmeleri: Detaylı hata mesajları     | Yapılacak    | Daha detaylı hata mesajları eklenecek.                                                  |
+| Error handling: API error response formatı standardizasyonu | Yapılacak    | Hatalar için standart response formatı belirlenecek.                                    |
+| Validation: Serializer validation'ları güçlendirme         | Yapılacak    | Serializer'da alan doğrulamaları arttırılacak.                                          |
+| Validation: Business rule validation'ları                  | Yapılacak    | İş kuralları doğrulamaları eklenecek.                                                  |
+| Payment entegrasyonu: Checkout oluşturma                   | Yapılacak    | Subscription başlatılırken ödeme süreci eklenecek.                                      |
+| Payment entegrasyonu: Callback handler                     | Yapılacak    | Payment callback karşılayıcı yazılacak.                                                 |
+| Analytics otomatik güncelleme (Popular sellers)            | Yapılacak    | Hesaplama manuel. Celery task veya signal ile otomatikleştirilecek.                     |
+| Stock event handler'lar (StockDecreasedEvent vs OutOfStock)| Yapılacak(*) | İki event için handler yazılması opsiyonel.                                             |
+| API dokümantasyonu (Swagger UI)                            | Yapılıyor    | Endpoint açıklamaları tamamlanacak.                                                     |
+| Logging (Structlog kullanımı)                              | Yapılacak    | Structlog entegrasyonu yaygınlaştırılacak.                                              |
+| Production hazırlık: Env var validation                    | Yapılacak    | Environment variable doğrulaması eklenecek.                                             |
+| Production hazırlık: Health check endpoint                 | Yapılacak    | Sağlık kontrol endpoint'i oluşturulacak.                                                |
+| Production hazırlık: Monitoring/logging setup              | Yapılacak    | Loglama altyapısı ve monitoring ayarlanacak.                                            |
