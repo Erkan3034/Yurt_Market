@@ -12,7 +12,6 @@
 | CORS ayarları                                              | Bitti        | Ortam bağımlı CORS ayarları yapılandırıldı.                                              |
 | Redis cache (analytics'te kullanılıyor)                    | Bitti        | Redis entegrasyonu, analytics modülünde aktif.                                          |
 | Celery & analytics task                                    | Bitti        | Celery app + `analytics.refresh_popular_sellers` task'i eklendi.                        |
-
 | Migrations                                                 | Bitti        | Tüm migration'lar oluşturuldu ve uygulandı.                                             |
 | Product Usage Tracking entegrasyonu                        | Yapılacak    | ProductService'te UsageTracking entegrasyonu eksik.                                     |
 | Testler: Unit testler (services, repositories)             | Yapılıyor    | Unit test hazırlıkları başladı.                                                         |
