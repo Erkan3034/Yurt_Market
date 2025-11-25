@@ -21,6 +21,10 @@ class SubscriptionStartView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        """
+        Initiate a subscription checkout session for the authenticated seller.
+        Returns payment session metadata that the client can redirect to.
+        """
         serializer = SubscriptionStartSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         service = SubscriptionService()
@@ -34,6 +38,10 @@ class SubscriptionStartView(APIView):
             seller=request.user,
             plan_id=plan.id,
         )
+        # Link payment session to subscription
+        subscription.payment_session_id = payment_session.get("session_id", "")
+        subscription.save(update_fields=["payment_session_id"])
+
         return Response(
             {
                 "subscription_id": subscription.id,

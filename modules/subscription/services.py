@@ -54,7 +54,13 @@ class SubscriptionService:
             defaults={"product_slots": plan.max_products},
         )
         event_dispatcher.dispatch(
-            SubscriptionActivatedEvent(payload={"seller_id": seller.id, "plan_id": plan.id})
+            SubscriptionActivatedEvent(
+                payload={
+                    "seller_id": seller.id,
+                    "plan_id": plan.id,
+                    "subscription_id": subscription.id,
+                }
+            )
         )
         logger.info(
             "subscription.activated",

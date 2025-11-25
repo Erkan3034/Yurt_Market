@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 
 
 class HealthCheckView(APIView):
+    """Lightweight health endpoint for load balancers/monitoring."""
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):

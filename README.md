@@ -60,6 +60,9 @@ Multi-dorm student marketplace built with Django, Django REST Framework, and a m
    PAYMENT_CANCEL_URL=http://localhost:3000/payment/cancel
    API_THROTTLE_RATE_ANON=50/minute
    API_THROTTLE_RATE_USER=200/minute
+   SENTRY_DSN=
+   SENTRY_TRACES_SAMPLE_RATE=0.1
+   ADMIN_ALLOWED_IPS=127.0.0.1,192.168.1.10
    ```
 4. Run migrations, seed data, and start the development server:
    ```bash
@@ -93,18 +96,25 @@ celery -A config worker --loglevel=info
 - `POST /api/payments/webhook` → payment provider callback endpoint
 - Swagger UI: `/api/schema/swagger-ui/`
 
+### Deployment
+
+See `DEPLOYMENT.md` for end-to-end deployment instructions (PostgreSQL, Redis, Celery workers, Sentry).
+
 ### Outstanding backend items
 
 - Replace dummy payment adapter with real Stripe/LemonSqueezy integration
 - Add automated job (Celery/cron) for refreshing analytics, stock alerts, notifications
 - Expand unit/integration test suite for services and API endpoints
 - Harden error handling/logging with structured context for each module
+ - Build PaymentTransaction model for stronger audit trail
 
-### Security defaults
+### Security & Monitoring
 
-- Rate limiting via DRF throttles (`50/min` anon, `200/min` authenticated — configurable via env).
-- Healthcheck endpoint returns minimal info intended for monitoring (add auth in prod as needed).
-- Remember to rotate secrets (`DJANGO_SECRET_KEY`, DB credentials) if `.env` was exposed.
+- Rate limiting via DRF throttles (`API_THROTTLE_RATE_*`). For production için daha düşük değerler kullanabilirsiniz (örn. `20/min` anon).
+- `ADMIN_ALLOWED_IPS` ile admin paneline IP bazlı kısıt getirildi.
+- Sentry entegrasyonu `SENTRY_DSN` ile aktif olur, örnek: `https://<key>@o123.ingest.sentry.io/456`.
+- Healthcheck endpoint (`/health/`) monitoring aracı için kullanılabilir; prod’da auth eklemeyi düşünün.
+- Secrets (`DJANGO_SECRET_KEY`, DB, SENTRY)` sızdıysa hemen değiştirin.
 
 ## Testing
 

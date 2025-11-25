@@ -23,7 +23,8 @@ class SellerSubscription(TimestampedModel):
     plan = models.ForeignKey(SubscriptionPlan, on_delete=models.PROTECT)
     starts_at = models.DateTimeField(default=timezone.now)
     expires_at = models.DateTimeField()
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)  # Start inactive, activate after payment
+    payment_session_id = models.CharField(max_length=255, blank=True, help_text="Payment provider session ID")
 
     def save(self, *args, **kwargs):
         if not self.expires_at:

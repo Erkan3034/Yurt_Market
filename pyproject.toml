@@ -18,7 +18,8 @@ dependencies = [
     "phonenumberslite>=8.13.37",
     "Pillow>=10.4.0",
     "python-slugify>=8.0.4",
-    "structlog>=24.1.0"
+    "structlog>=24.1.0",
+    "sentry-sdk>=2.16.0"
 ]
 
 [project.optional-dependencies]

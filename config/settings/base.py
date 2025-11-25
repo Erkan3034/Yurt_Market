@@ -23,6 +23,9 @@ env = environ.Env(
     PAYMENT_CANCEL_URL=(str, "http://localhost:3000/payment/cancel"),
     API_THROTTLE_RATE_ANON=(str, "50/minute"),
     API_THROTTLE_RATE_USER=(str, "200/minute"),
+    SENTRY_DSN=(str, ""),
+    SENTRY_TRACES_SAMPLE_RATE=(float, 0.0),
+    ADMIN_ALLOWED_IPS=(list, []),
 )
 
 environ.Env.read_env(env_file=BASE_DIR / ".env")
@@ -68,6 +71,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.admin_ip_restrict.AdminIPRestrictionMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -197,6 +201,7 @@ CELERY_RESULT_BACKEND = REDIS_URL
 PAYMENT_PROVIDER = env("PAYMENT_PROVIDER")
 PAYMENT_SUCCESS_URL = env("PAYMENT_SUCCESS_URL")
 PAYMENT_CANCEL_URL = env("PAYMENT_CANCEL_URL")
+ADMIN_ALLOWED_IPS = env.list("ADMIN_ALLOWED_IPS", default=[])
 
 STRUCTLOG_CONFIG = {
     "processors": [
@@ -204,4 +209,18 @@ STRUCTLOG_CONFIG = {
     ],
     "context_class": dict,
 }
+
+SENTRY_DSN = env("SENTRY_DSN")
+SENTRY_TRACES_SAMPLE_RATE = env("SENTRY_TRACES_SAMPLE_RATE")
+
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE or 0.1,
+        send_default_pii=True,
+    )
 
