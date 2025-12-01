@@ -1,46 +1,68 @@
 import { Link } from "react-router-dom";
-import { authStore } from "../../store/auth";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 export const LandingNavbar = () => {
-  const user = authStore((state) => state.user);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const menuItems = [
+    { label: "Mağaza Aç", to: "/auth/register?role=seller" },
+    { label: "Giriş Yap", to: "/auth/login" },
+  ];
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-100">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-8">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-100">
-            <div className="h-6 w-6 rounded bg-brand-500" />
-          </div>
-          <span className="text-xl font-bold text-slate-900">Yurt Market</span>
-        </Link>
+<header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/10 shadow-sm py-4 transition-all duration-300">
+      <div className="mx-auto max-w-7xl px-4">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-100">
+              <div className="h-6 w-6 rounded bg-brand-500" />
+            </div>
+            <span className="text-xl font-bold text-slate-900">Yurt Market</span>
+          </Link>
 
-        {/* Navigation Buttons */}
-        <div className="flex items-center gap-3">
-          {!user ? (
-            <>
+          {/* Desktop Menu */}
+          <nav className="hidden md:flex items-center gap-4">
+            {menuItems.map((item) => (
               <Link
-                to="/auth/login"
-                className="rounded-full border-2 border-brand-300 bg-white px-5 py-2 text-sm font-semibold text-brand-600 transition-colors hover:border-brand-400 hover:bg-brand-50"
+                key={item.to}
+                to={item.to}
+                className="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors"
               >
-                Giriş Yap
+                {item.label}
               </Link>
-              <Link
-                to="/auth/register"
-                className="rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700 shadow-sm"
-              >
-                Kayıt Ol
-              </Link>
-            </>
-          ) : (
-            <Link
-              to="/app/explore"
-              className="rounded-full bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 shadow-sm"
-            >
-              Ürünleri Keşfet
-            </Link>
-          )}
+            ))}
+          </nav>
+
+          {/* Mobile Hamburger Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-slate-700 hover:text-brand-600 transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {/* Mobilde açılan menünün de cam gibi görünmesini istersen buraya da bg-white/xxx ekleyebilirsin */}
+        {isMobileMenuOpen && (
+          <nav className="md:hidden mt-4 pb-4 border-t border-slate-200/60 pt-4">
+            <div className="flex flex-col gap-3">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors py-2"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </nav>
+        )}
       </div>
     </header>
   );

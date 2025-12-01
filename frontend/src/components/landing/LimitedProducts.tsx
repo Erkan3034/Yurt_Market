@@ -1,4 +1,5 @@
 import { Product } from "../../types";
+import { ProductCard } from "./ProductCard";
 
 interface LimitedProductsProps {
   products: Product[];
@@ -27,8 +28,15 @@ export const LimitedProducts = ({ products, loading }: LimitedProductsProps) => 
         { id: 5, name: "Hazır Noodle", price: 17.5, category_name: "Atıştırmalık", is_out_of_stock: false },
       ];
 
+  // ProductCard için formatlanmış ürünler
+  const formattedProducts = displayProducts.map((product) => ({
+    image: productImages[product.name] || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop",
+    title: product.name,
+    price: Number(product.price || 0),
+  }));
+
   return (
-    <section id="products" className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+    <section id="products" className="mx-auto max-w-7xl px-4 py-16">
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">Popüler Ürünler</h2>
       </div>
@@ -38,33 +46,15 @@ export const LimitedProducts = ({ products, loading }: LimitedProductsProps) => 
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
         </div>
       ) : (
-        <div className="overflow-x-auto pb-4">
-          <div className="flex gap-6 min-w-max">
-            {displayProducts.map((product, idx) => {
-              const imageUrl = productImages[product.name] || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop";
-              return (
-                <div
-                  key={product.id ?? idx}
-                  className="flex-shrink-0 w-64 rounded-2xl bg-white shadow-sm overflow-hidden"
-                >
-                  <div className="aspect-square w-full bg-slate-100 overflow-hidden rounded-t-2xl">
-                    <img
-                      src={imageUrl}
-                      alt={product.name}
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop";
-                      }}
-                    />
-                  </div>
-                  <div className="p-4">
-                    <p className="text-sm font-semibold text-slate-900">{product.name}</p>
-                    <p className="mt-2 text-lg font-bold text-slate-900">₺{Number(product.price || 0).toFixed(2)}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          {formattedProducts.map((product, idx) => (
+            <ProductCard
+              key={displayProducts[idx]?.id ?? idx}
+              image={product.image}
+              title={product.title}
+              price={product.price}
+            />
+          ))}
         </div>
       )}
     </section>

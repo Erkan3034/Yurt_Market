@@ -59,13 +59,13 @@ export const PricingSection = () => {
           </p>
         </div>
 
-        {/* SATICI OLARAK BAŞLA Butonu */}
+        {/* MAĞAZA AÇ Butonu */}
         <div className="mb-8 text-center">
           <button
             onClick={handleStartAsSeller}
             className="rounded-full bg-brand-600 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-brand-500/30 hover:bg-brand-700 transition-colors"
           >
-            SATICI OLARAK BAŞLA
+            MAĞAZA AÇ
           </button>
           <p className="mt-3 text-sm text-slate-500">
             Ücretsiz başla, 3 ürüne kadar sınırsız satış yap
@@ -107,9 +107,9 @@ export const PricingSection = () => {
           ))}
         </div>
 
-        {/* Satıcı Olmak İsteyenler İçin Bilgi */}
+        {/* Mağaza Açmak İsteyenler İçin Bilgi */}
         <div className="mt-12 rounded-3xl border border-brand-100 bg-brand-50/50 p-8 text-center">
-          <h3 className="text-xl font-bold text-slate-900">Satıcı Olmak İster misin?</h3>
+          <h3 className="text-xl font-bold text-slate-900">Mağaza Açmak İster misin?</h3>
           <p className="mt-3 text-sm text-slate-600">
             Yurt Market'te satış yapmak çok kolay! Ücretsiz başla, ilk 3 ürününü ekle ve satışa başla.
             Daha fazla ürün eklemek istersen Pro plana geçebilirsin.
@@ -145,11 +145,11 @@ export const PricingSection = () => {
       <Modal
         isOpen={showPlansModal}
         onClose={() => setShowPlansModal(false)}
-        title="Satıcı Planları"
+        title="Mağaza Planları"
       >
         <div className="space-y-4">
           <p className="text-slate-700">
-            Satıcı olarak kayıt olmak için bir plan seç. İstersen ücretsiz başlayıp sonra yükseltebilirsin.
+            Mağaza açmak için kayıt olmak için bir plan seç. İstersen ücretsiz başlayıp sonra yükseltebilirsin.
           </p>
           <div className="space-y-3">
             {plans.map((plan) => (
