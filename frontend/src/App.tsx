@@ -38,7 +38,6 @@ function App() {
           >
             <Route path="explore" element={<ExplorePage />} />
             <Route path="orders" element={<OrdersPage />} />
-            <Route path="subscription" element={<SubscriptionPage />} />
             <Route index element={<Navigate to="explore" replace />} />
           </Route>
 
@@ -53,6 +52,7 @@ function App() {
             <Route path="products" element={<ProductsPage />} />
             <Route path="orders" element={<SellerOrdersPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="subscription" element={<SubscriptionPage />} />
             <Route index element={<Navigate to="products" replace />} />
           </Route>
 

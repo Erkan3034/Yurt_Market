@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { register as registerUser } from "../../services/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { authStore } from "../../store/auth";
 import toast from "react-hot-toast";
 import { getErrorMessage } from "../../lib/errors";
@@ -25,7 +25,12 @@ type RegisterForm = z.infer<typeof schema>;
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [serverError, setServerError] = useState<string | null>(null);
+  
+  // URL'den role bilgisini al
+  const roleFromUrl = searchParams.get("role") as "student" | "seller" | null;
+  
   const { register, handleSubmit, watch, formState, setValue, setError: setFieldError, clearErrors } =
     useForm<RegisterForm>({
       resolver: zodResolver(schema),
@@ -34,11 +39,18 @@ export const RegisterPage = () => {
         password: "",
         dorm_name: "",
         dorm_address: "",
-        role: "student",
+        role: roleFromUrl === "seller" ? "seller" : "student",
         phone: "",
         iban: "",
       },
     });
+  
+  // URL'den gelen role'ü form'a set et
+  useEffect(() => {
+    if (roleFromUrl === "seller") {
+      setValue("role", "seller");
+    }
+  }, [roleFromUrl, setValue]);
 
   const role = watch("role");
   const dormName = watch("dorm_name");

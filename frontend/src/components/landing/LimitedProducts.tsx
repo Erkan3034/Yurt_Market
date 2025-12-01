@@ -1,88 +1,78 @@
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
 import { Product } from "../../types";
 
 interface LimitedProductsProps {
   products: Product[];
   loading: boolean;
-  error: string | null;
   limited?: boolean;
 }
 
-export const LimitedProducts = ({ products, loading, error, limited = true }: LimitedProductsProps) => (
-  <section id="products" className="mx-auto max-w-6xl px-4">
-    <div className="mb-6 flex flex-col gap-3 text-center md:text-left">
-      <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-        Yurttaki satıcılar
-      </p>
-      <h2 className="text-3xl font-bold text-slate-900">
-        {limited ? "Üye olmadan 10 ürüne kadar göz at" : "Bugün öne çıkan ürünler"}
-      </h2>
-      {limited && (
-        <p className="text-sm text-slate-500">
-          Daha fazla ürün görmek ve sipariş vermek için ücretsiz kayıt ol.
-        </p>
-      )}
-    </div>
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {loading
-        ? Array.from({ length: 6 }).map((_, idx) => (
-            <div key={idx} className="animate-pulse rounded-2xl bg-white p-6 shadow-sm">
-              <div className="mb-4 h-4 w-32 rounded bg-slate-100" />
-              <div className="mb-2 h-6 w-48 rounded bg-slate-100" />
-              <div className="mb-4 h-3 w-full rounded bg-slate-100" />
-              <div className="h-4 w-20 rounded bg-slate-100" />
-            </div>
-          ))
-        : products.map((product, idx) => (
-            <motion.div
-              key={product.id ?? idx}
-              className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:-translate-y-1 hover:shadow-lg"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-            >
-              <p className="text-xs uppercase tracking-wide text-brand-500">
-                {product.category_name ?? "Atıştırmalık"}
-              </p>
-              <p className="mt-2 text-xl font-semibold text-slate-900">{product.name}</p>
-              <p className="mt-2 line-clamp-3 text-sm text-slate-500">{product.description}</p>
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-2xl font-bold text-slate-900">{product.price} ₺</p>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    product.is_out_of_stock
-                      ? "bg-red-50 text-red-600"
-                      : "bg-emerald-50 text-emerald-600"
-                  }`}
-                >
-                  {product.is_out_of_stock ? "Tükendi" : "Stokta"}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-    </div>
-    {error && (
-      <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm text-amber-700">
-        <p>{error}</p>
-        <p className="mt-2">
-          <Link to="/auth/register" className="font-semibold underline">
-            Hemen kaydol
-          </Link>{" "}
-          ve aktif satıcıların tamamını gör.
-        </p>
-      </div>
-    )}
-    {limited && (
-      <div className="mt-6 text-center">
-        <Link
-          to="/auth/register"
-          className="inline-flex rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white"
-        >
-          Ücretsiz kayıt ol
-        </Link>
-      </div>
-    )}
-  </section>
-);
+export const LimitedProducts = ({ products, loading, limited = true }: LimitedProductsProps) => {
+  // Demo ürün görselleri (gerçek uygulamada API'den gelecek)
+  const productImages: Record<string, string> = {
+    "Protein Bar": "https://images.unsplash.com/photo-1606312619070-d48b4b942fad?w=400&h=400&fit=crop",
+    "Soğuk Kahve": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=400&fit=crop",
+    "Cips Paketi": "https://images.unsplash.com/photo-1612929633736-8c8cb0c8a3e1?w=400&h=400&fit=crop",
+    "Enerji İçeceği": "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=400&fit=crop",
+    "Hazır Noodle": "https://images.unsplash.com/photo-1612929633736-8c8cb0c8a3e1?w=400&h=400&fit=crop",
+  };
 
+  // İlk 5 ürünü göster veya demo ürünler
+  const displayProducts = products.slice(0, 5).length > 0 
+    ? products.slice(0, 5)
+    : [
+        { id: 1, name: "Protein Bar", price: 25.0, category_name: "Atıştırmalık", is_out_of_stock: false },
+        { id: 2, name: "Soğuk Kahve", price: 20.0, category_name: "İçecek", is_out_of_stock: false },
+        { id: 3, name: "Cips Paketi", price: 18.5, category_name: "Atıştırmalık", is_out_of_stock: false },
+        { id: 4, name: "Enerji İçeceği", price: 30.0, category_name: "İçecek", is_out_of_stock: false },
+        { id: 5, name: "Hazır Noodle", price: 17.5, category_name: "Atıştırmalık", is_out_of_stock: false },
+      ];
+
+  return (
+    <section id="products" className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+      <div className="mb-8 text-center">
+        <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">Popüler Ürünler</h2>
+        {limited && (
+          <p className="mt-3 text-sm text-slate-600">
+            Daha fazla ürün görmek için ücretsiz kayıt ol
+          </p>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
+        </div>
+      ) : (
+        <div className="overflow-x-auto pb-4">
+          <div className="flex gap-6 min-w-max px-2">
+            {displayProducts.map((product, idx) => {
+              const imageUrl = productImages[product.name] || "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop";
+              return (
+                <div
+                  key={product.id ?? idx}
+                  className="flex-shrink-0 w-64 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1"
+                >
+                  <div className="aspect-square w-full bg-slate-100 overflow-hidden">
+                    <img
+                      src={imageUrl}
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=400&fit=crop";
+                      }}
+                    />
+                  </div>
+                  <div className="p-4">
+                    <p className="text-sm font-semibold text-slate-900 line-clamp-2">{product.name}</p>
+                    <p className="mt-2 text-xl font-bold text-brand-600">₺{product.price.toFixed(2)}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+    </section>
+  );
+};

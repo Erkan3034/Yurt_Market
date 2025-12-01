@@ -1,10 +1,14 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchSellerProducts, createProduct, deleteProduct } from "../../services/products";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { Spinner } from "../../components/ui/Spinner";
+import { Modal } from "../../components/ui/Modal";
+import { getErrorMessage } from "../../lib/errors";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -18,6 +22,8 @@ type ProductForm = z.infer<typeof schema>;
 
 export const ProductsPage = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const { data, isLoading } = useQuery({
     queryKey: ["seller-products"],
     queryFn: fetchSellerProducts,
@@ -41,7 +47,15 @@ export const ProductsPage = () => {
       queryClient.invalidateQueries({ queryKey: ["seller-products"] });
       toast.success("Ürün eklendi");
     },
-    onError: () => toast.error("Ürün eklenemedi"),
+    onError: (error: unknown) => {
+      const message = getErrorMessage(error);
+      // Abonelik limiti hatası ise modal aç
+      if (message.toLowerCase().includes("subscribe") || message.toLowerCase().includes("abonelik")) {
+        setShowSubscriptionModal(true);
+        return;
+      }
+      toast.error(message || "Ürün eklenemedi");
+    },
   });
 
   const deleteMutation = useMutation({
@@ -56,69 +70,100 @@ export const ProductsPage = () => {
   });
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-900">Yeni ürün ekle</h2>
-        <form
-          onSubmit={form.handleSubmit((values) => createMutation.mutate(values))}
-          className="mt-4 space-y-4"
-        >
-          <input {...form.register("name")} placeholder="Ürün adı" className="w-full rounded-2xl border-slate-200" />
-          <textarea
-            {...form.register("description")}
-            placeholder="Açıklama"
-            className="w-full rounded-2xl border-slate-200"
-            rows={3}
-          />
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <input {...form.register("price")} type="number" placeholder="Fiyat" className="rounded-2xl border-slate-200" />
-            <input
-              {...form.register("stock_quantity")}
-              type="number"
-              placeholder="Stok"
-              className="rounded-2xl border-slate-200"
+    <>
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-slate-900">Yeni ürün ekle</h2>
+          <form
+            onSubmit={form.handleSubmit((values) => createMutation.mutate(values))}
+            className="mt-4 space-y-4"
+          >
+            <input {...form.register("name")} placeholder="Ürün adı" className="w-full rounded-2xl border-slate-200" />
+            <textarea
+              {...form.register("description")}
+              placeholder="Açıklama"
+              className="w-full rounded-2xl border-slate-200"
+              rows={3}
             />
-            <input
-              {...form.register("category_id")}
-              type="number"
-              placeholder="Kategori ID"
-              className="rounded-2xl border-slate-200"
-            />
-          </div>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <input {...form.register("price")} type="number" placeholder="Fiyat" className="rounded-2xl border-slate-200" />
+              <input
+                {...form.register("stock_quantity")}
+                type="number"
+                placeholder="Stok"
+                className="rounded-2xl border-slate-200"
+              />
+              <input
+                {...form.register("category_id")}
+                type="number"
+                placeholder="Kategori ID"
+                className="rounded-2xl border-slate-200"
+              />
+            </div>
           <button
             type="submit"
             className="w-full rounded-2xl bg-brand-600 py-2 font-semibold text-white"
-            disabled={createMutation.isLoading}
+            disabled={createMutation.isPending}
           >
-            {createMutation.isLoading ? "Ekleniyor..." : "Ürün ekle"}
+            {createMutation.isPending ? "Ekleniyor..." : "Ürün ekle"}
           </button>
-        </form>
-      </div>
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-900">Ürün listesi</h2>
-        {isLoading ? (
-          <Spinner label="Ürünler yükleniyor..." />
-        ) : (
-          <div className="mt-4 space-y-3 text-sm">
-            {data?.map((product) => (
-              <div key={product.id} className="flex items-center justify-between rounded-2xl border border-slate-100 px-4 py-3">
-                <div>
-                  <p className="font-semibold text-slate-900">{product.name}</p>
-                  <p className="text-xs text-slate-400">{product.price} ₺ • stok {product.stock_quantity}</p>
+          </form>
+        </div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-slate-900">Ürün listesi</h2>
+          {isLoading ? (
+            <Spinner label="Ürünler yükleniyor..." />
+          ) : (
+            <div className="mt-4 space-y-3 text-sm">
+              {data?.map((product) => (
+                <div key={product.id} className="flex items-center justify-between rounded-2xl border border-slate-100 px-4 py-3">
+                  <div>
+                    <p className="font-semibold text-slate-900">{product.name}</p>
+                    <p className="text-xs text-slate-400">{product.price} ₺ • stok {product.stock_quantity}</p>
+                  </div>
+                  <button
+                    onClick={() => deleteMutation.mutate(product.id)}
+                    className="text-xs font-semibold text-red-500"
+                  >
+                    Sil
+                  </button>
                 </div>
-                <button
-                  onClick={() => deleteMutation.mutate(product.id)}
-                  className="text-xs font-semibold text-red-500"
-                >
-                  Sil
-                </button>
-              </div>
-            ))}
-            {!data?.length && <p className="text-slate-500">Henüz ürün eklenmedi.</p>}
-          </div>
-        )}
+              ))}
+              {!data?.length && <p className="text-slate-500">Henüz ürün eklenmedi.</p>}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      <Modal
+        isOpen={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+        title="Ürün Limiti Doldu"
+      >
+        <div className="space-y-4">
+          <p className="text-slate-700">
+            Ücretsiz ürün hakkın doldu. Daha fazla ürün eklemek için abonelik planını yükseltmelisin.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setShowSubscriptionModal(false);
+                navigate("/seller/subscription");
+              }}
+              className="flex-1 rounded-2xl bg-brand-600 py-2.5 font-semibold text-white shadow-lg shadow-brand-500/30"
+            >
+              Plan Yükselt
+            </button>
+            <button
+              onClick={() => setShowSubscriptionModal(false)}
+              className="rounded-2xl border border-slate-300 bg-white px-4 py-2.5 font-semibold text-slate-700"
+            >
+              İptal
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 };
 

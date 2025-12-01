@@ -1,30 +1,22 @@
 import { Link } from "react-router-dom";
 
 export const CTASection = () => (
-  <section className="mx-auto max-w-5xl rounded-3xl bg-slate-900 px-6 py-12 text-center text-white shadow-2xl">
-    <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-200">
-      7 gün ücretsiz deneyin
-    </p>
-    <h2 className="mt-4 text-3xl font-bold">
-      Yurt Market'i hemen devreye alın, öğrencilerinizin sipariş deneyimini iyileştirin.
-    </h2>
-    <p className="mt-3 text-sm text-slate-300">
-      Kurulum yalnızca 1 saat sürer. Lojistik entegrasyon gerektirmez.
-    </p>
-    <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-      <Link
-        to="/auth/register"
-        className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900"
-      >
-        Satıcı olarak başla
-      </Link>
-      <a
-        href="mailto:turguterkan55@gmail.com"
-        className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white"
-      >
-        Demo iste
-      </a>
+  <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+    <div className="rounded-3xl bg-brand-100 px-8 py-12 lg:px-16">
+      <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
+        <div className="text-center lg:text-left">
+          <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl">Binlerce Öğrenciye Katıl!</h2>
+          <p className="mt-3 text-base text-slate-600">
+            Yurt hayatını kolaylaştıran pazar yerine hemen kaydol, fırsatları kaçırma.
+          </p>
+        </div>
+        <Link
+          to="/auth/register"
+          className="flex-shrink-0 rounded-full bg-brand-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-500/30 transition-all hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/40"
+        >
+          Hemen Kaydol
+        </Link>
+      </div>
     </div>
   </section>
 );
-
