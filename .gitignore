@@ -28,7 +28,7 @@ MANIFEST
 venv/
 ENV/
 env/
-
+.env
 # Django
 *.log
 local_settings.py
