@@ -21,6 +21,11 @@ Multi-dorm student marketplace built with Django, Django REST Framework, and a m
 1. Create and activate a virtual environment targeting Python 3.11+.
 2. Install dependencies:
    ```bash
+   # Option 1: Using requirements.txt (recommended for new developers)
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt  # For development tools
+   
+   # Option 2: Using pyproject.toml (if using setuptools)
    pip install -e .[dev]
    ```
 3. Create `.env` file in the project root (same directory as `manage.py`):
