@@ -1,0 +1,13 @@
+# Development dependencies for Yurt Market
+# Install with: pip install -r requirements.txt -r requirements-dev.txt
+
+-r requirements.txt
+
+# Development tools
+ruff>=0.7.1
+pytest>=8.3.3
+pytest-django>=4.9.0
+factory-boy>=3.3.1
+model-bakery>=1.18.0
+django-debug-toolbar>=4.4.6
+
