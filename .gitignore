@@ -28,7 +28,7 @@ MANIFEST
 venv/
 ENV/
 env/
-
+.env
 # Django
 *.log
 local_settings.py
@@ -73,3 +73,7 @@ dump.rdb
 # Project specific
 yurt_market.egg-info/
 node_modules/
+# Diğer gereksiz dosyalar (Daha önceki npm hatasından kalanlar)
+node_modules/
+package-lock.json  # Eğer bu dosyanın depoda olmasını istemiyorsanız
+desktop.ini
