@@ -13,6 +13,10 @@ export interface User {
   dorm_id: number;
   role: UserRole;
   date_joined?: string;
+  phone?: string;
+  room_number?: string;
+  block?: string;
+  seller_store_is_open?: boolean | null;
 }
 
 export interface Product {
@@ -25,6 +29,10 @@ export interface Product {
   stock_quantity: number;
   category_id: number;
   category_name?: string;
+  seller_id?: number;
+  seller_store_is_open?: boolean;
+  seller_phone?: string;
+  seller_room?: string;
 }
 
 export interface OrderItem {
@@ -44,6 +52,18 @@ export interface Order {
   seller_id: number;
   customer_id: number;
   items: OrderItem[];
+  payment_method?: string;
+  payment_method_display?: string;
+  delivery_type?: string;
+  delivery_type_display?: string;
+  delivery_address?: string;
+  delivery_phone?: string;
+  customer_email?: string;
+  customer_phone?: string;
+  customer_room?: string;
+  seller_email?: string;
+  seller_phone?: string;
+  seller_room?: string;
 }
 
 export interface SubscriptionStatus {

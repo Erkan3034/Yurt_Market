@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { createOrder } from "../../services/orders";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "../../components/ui/Spinner";
+import { OrderConfirmModal } from "../../components/orders/OrderConfirmModal";
 import { toast } from "react-hot-toast";
 import { getErrorMessage } from "../../lib/errors";
 import { Search, ShoppingCart, User, Plus, Minus, X } from "lucide-react";
@@ -77,6 +78,11 @@ export const ExplorePage = () => {
   }, [data, searchQuery, selectedCategory, sortBy]);
 
   const addToCart = (productId: number) => {
+    const product = data?.find((p) => p.id === productId);
+    if (product?.seller_store_is_open === false) {
+      toast.error("Bu mağaza şu anda kapalı. Lütfen daha sonra tekrar deneyin.");
+      return;
+    }
     setCart((prev) => ({ ...prev, [productId]: (prev[productId] ?? 0) + 1 }));
     toast.success("Sepete eklendi");
   };
@@ -123,16 +129,20 @@ export const ExplorePage = () => {
     return Object.values(cart).reduce((sum, qty) => sum + qty, 0);
   }, [cart]);
 
+  const [showOrderModal, setShowOrderModal] = useState(false);
+
   const orderMutation = useMutation({
-    mutationFn: () =>
-      createOrder({
-        items: cartItems.map((item) => ({
-          product_id: item.product_id,
-          quantity: item.quantity,
-        })),
-      }),
+    mutationFn: (payload: {
+      notes?: string;
+      items: { product_id: number; quantity: number }[];
+      payment_method?: string;
+      delivery_type?: string;
+      delivery_address: string;
+      delivery_phone: string;
+    }) => createOrder(payload),
     onSuccess: () => {
       setCart({});
+      setShowOrderModal(false);
       toast.success("Siparişin oluşturuldu!");
       queryClient.invalidateQueries({ queryKey: ["orders", "customer"] });
     },
@@ -140,6 +150,26 @@ export const ExplorePage = () => {
       toast.error(getErrorMessage(error) || "Sipariş oluşturulamadı");
     },
   });
+
+  const handleOrderConfirm = (
+    paymentMethod: string,
+    notes: string,
+    deliveryType: string,
+    deliveryAddress: string,
+    deliveryPhone: string
+  ) => {
+    orderMutation.mutate({
+      notes: notes.trim() || undefined,
+      payment_method: paymentMethod,
+      delivery_type: deliveryType,
+      delivery_address: deliveryAddress,
+      delivery_phone: deliveryPhone,
+      items: cartItems.map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+      })),
+    });
+  };
 
   // Demo ürün görselleri
   const getProductImage = (productName: string) => {
@@ -323,6 +353,12 @@ export const ExplorePage = () => {
                           {product.category_name}
                         </div>
                       )}
+                      {/* Mağaza Kapalı Badge */}
+                      {product.seller_store_is_open === false && (
+                        <div className="absolute right-3 top-3 rounded-full bg-red-600/90 px-3 py-1 text-xs font-semibold text-white">
+                          Mağaza  Kapalı
+                        </div>
+                      )}
                     </div>
 
                     {/* Product Info */}
@@ -341,15 +377,19 @@ export const ExplorePage = () => {
                       </div>
                       <button
                         onClick={() => addToCart(product.id)}
-                        disabled={product.is_out_of_stock}
+                        disabled={product.is_out_of_stock || product.seller_store_is_open === false}
                         className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
-                          product.is_out_of_stock
+                          product.is_out_of_stock || product.seller_store_is_open === false
                             ? "bg-slate-200 text-slate-500 cursor-not-allowed"
                             : "bg-brand-600 text-white hover:bg-brand-700"
                         }`}
                       >
                         <ShoppingCart className="h-4 w-4" />
-                        {product.is_out_of_stock ? "Tükendi" : "Ekle"}
+                        {product.is_out_of_stock
+                          ? "Tükendi"
+                          : product.seller_store_is_open === false
+                          ? "Mağaza  Kapalı"
+                          : "Ekle"}
                       </button>
                     </div>
                   </div>
@@ -423,23 +463,39 @@ export const ExplorePage = () => {
 
               {/* Checkout Button */}
               <button
-                onClick={() => orderMutation.mutate()}
+                onClick={() => setShowOrderModal(true)}
                 disabled={orderMutation.isPending}
                 className="mt-4 w-full rounded-full bg-brand-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand-500/30 transition-all hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-500/40 disabled:opacity-50"
               >
-                {orderMutation.isPending ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Spinner />
-                    Oluşturuluyor...
-                  </span>
-                ) : (
-                  "Siparişi Tamamla"
-                )}
+                Siparişi Tamamla
               </button>
             </>
           )}
         </aside>
       </div>
+
+      {/* Order Confirm Modal */}
+      <OrderConfirmModal
+        isOpen={showOrderModal}
+        onClose={() => setShowOrderModal(false)}
+        cartItems={cartItems}
+        cartTotal={cartTotal}
+        onConfirm={handleOrderConfirm}
+        isLoading={orderMutation.isPending}
+        sellerInfo={
+          cartItems.length > 0 && data
+            ? (() => {
+                const firstProduct = data.find((p) => p.id === cartItems[0].product_id);
+                return firstProduct
+                  ? {
+                      phone: firstProduct.seller_phone,
+                      room: firstProduct.seller_room,
+                    }
+                  : undefined;
+              })()
+            : undefined
+        }
+      />
     </div>
   );
 };

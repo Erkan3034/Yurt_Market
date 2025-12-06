@@ -11,8 +11,12 @@ export const fetchMyOrders = async (role: "customer" | "seller" = "customer") =>
 export const createOrder = async (payload: {
   notes?: string;
   items: { product_id: number; quantity: number }[];
+  payment_method?: string;
+  delivery_type?: string;
+  delivery_address: string;
+  delivery_phone: string;
 }) => {
-  const { data } = await api.post<Order>("/api/orders", payload);
+  const { data } = await api.post<Order>("/api/orders/", payload);
   return data;
 };
 

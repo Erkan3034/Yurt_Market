@@ -7,9 +7,19 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    seller_store_is_open = serializers.SerializerMethodField()
+    phone = serializers.CharField(read_only=True)
+    room_number = serializers.CharField(read_only=True)
+    block = serializers.CharField(read_only=True)
+
     class Meta:
         model = User
-        fields = ["id", "email", "role", "dorm_id", "date_joined"]
+        fields = ["id", "email", "role", "dorm_id", "date_joined", "phone", "room_number", "block", "seller_store_is_open"]
+
+    def get_seller_store_is_open(self, obj):
+        if hasattr(obj, "seller_profile"):
+            return obj.seller_profile.store_is_open
+        return None
 
 
 class RegisterSerializer(serializers.Serializer):

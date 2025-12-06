@@ -19,10 +19,21 @@ class OrderViewSet(viewsets.ViewSet):
         return Response(OrderSerializer(orders, many=True).data)
 
     def create(self, request):
-        serializer = OrderCreateSerializer(data=request.data, context={"request": request})
-        serializer.is_valid(raise_exception=True)
-        order = serializer.save()
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = OrderCreateSerializer(data=request.data, context={"request": request})
+            serializer.is_valid(raise_exception=True)
+            order = serializer.save()
+            return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            from core.exceptions import ValidationError, PermissionDeniedError
+            if isinstance(e, (ValidationError, PermissionDeniedError)):
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Log unexpected errors
+            import traceback
+            from core.utils.logging import get_logger
+            logger = get_logger(__name__)
+            logger.error("order.create.error", error=str(e), traceback=traceback.format_exc())
+            return Response({"detail": "Sipariş oluşturulurken bir hata oluştu."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=["post"], url_path="approve")
     def approve(self, request, pk=None):

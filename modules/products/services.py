@@ -101,7 +101,7 @@ class ProductService:
         logger.info("product.deleted", product_id=product_id, seller_id=seller.id)
 
     def list_for_dorm(self, dorm_id: int):
-        return self.product_repo.find_by_dorm(dorm_id).select_related("stock", "category")
+        return self.product_repo.find_by_dorm(dorm_id).select_related("stock", "category", "seller", "seller__seller_profile")
 
     def list_for_seller(self, seller: User):
         return self.product_repo.find_by_seller(seller.id).select_related("stock", "category")

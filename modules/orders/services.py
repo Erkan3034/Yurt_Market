@@ -40,6 +40,10 @@ class OrderService:
         customer: User,
         items: List[OrderItemDTO],
         notes: str = "",
+        payment_method: str = "cash_on_delivery",
+        delivery_type: str = "customer_pickup",
+        delivery_address: str = "",
+        delivery_phone: str = "",
     ) -> Order:
         if not items:
             raise ValidationError("Order requires at least one item.")
@@ -54,6 +58,9 @@ class OrderService:
         seller = first_product.seller
         dorm = first_product.dorm
 
+        if not customer.dorm_id:
+            raise ValidationError("Kullanıcının yurt bilgisi bulunamadı.")
+        
         if customer.dorm_id != dorm.id:
             raise ValidationError("Students can only order from their dorm.")
 
@@ -61,13 +68,42 @@ class OrderService:
             if product.seller_id != seller.id:
                 raise ValidationError("All items must belong to the same seller.")
 
+        # Ensure stock exists for all products
+        from modules.products.models import Stock
+        for product in product_map.values():
+            if not hasattr(product, "stock") or product.stock is None:
+                stock, _ = Stock.objects.get_or_create(product=product, defaults={"quantity": 0})
+                product.stock = stock
+
+        # Check if seller's store is open
+        if hasattr(seller, "seller_profile") and not seller.seller_profile.store_is_open:
+            raise ValidationError("Mağaza şu anda kapalı. Lütfen daha sonra tekrar deneyin.")
+
         total = Decimal("0.00")
         with transaction.atomic():
-            order = self.order_repo.create(customer=customer, seller=seller, dorm=dorm, notes=notes)
+            order = self.order_repo.create(
+                customer=customer,
+                seller=seller,
+                dorm=dorm,
+                notes=notes,
+                payment_method=payment_method,
+                delivery_type=delivery_type,
+                delivery_address=delivery_address,
+                delivery_phone=delivery_phone,
+            )
             bulk_items = []
             for dto in items:
                 product = product_map[dto.product_id]
-                product.stock.decrease(dto.quantity)
+                # Reload stock to ensure we have the latest quantity
+                product.stock.refresh_from_db()
+                
+                try:
+                    product.stock.decrease(dto.quantity)
+                except ValueError as e:
+                    raise ValidationError(f"Stok hatası: {str(e)}")
+                except AttributeError:
+                    raise ValidationError(f"Ürün '{product.name}' için stok bilgisi bulunamadı.")
+                
                 line_total = product.price * dto.quantity
                 total += line_total
                 bulk_items.append(

@@ -42,6 +42,9 @@ class User(AbstractUser, TimestampedModel):
     email = models.EmailField(unique=True)
     dorm = models.ForeignKey("dorms.Dorm", on_delete=models.PROTECT, related_name="users")
     role = models.CharField(max_length=20, choices=Roles.choices, default=Roles.STUDENT)
+    phone = models.CharField(max_length=32, blank=True)
+    room_number = models.CharField(max_length=20, blank=True)
+    block = models.CharField(max_length=20, blank=True)
 
     objects = CustomUserManager()
 
@@ -61,6 +64,7 @@ class SellerProfile(TimestampedModel):
     phone = models.CharField(max_length=32)
     iban = models.CharField(max_length=34, blank=True)
     notification_email = models.EmailField(blank=True)
+    store_is_open = models.BooleanField(default=True, help_text="Mağaza satışa açık mı?")
 
     class Meta:
         verbose_name = _("Seller Profile")

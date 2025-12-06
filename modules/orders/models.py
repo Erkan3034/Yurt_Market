@@ -15,6 +15,13 @@ class Order(TimestampedModel):
         RED = "RED", "Reddedildi"
         IPTAL = "IPTAL", "İptal Edildi"
 
+    class DeliveryType(models.TextChoices):
+        CUSTOMER_PICKUP = "customer_pickup", "Müşteri Alacak"
+        SELLER_DELIVERY = "seller_delivery", "Satıcı Getirecek"
+
+    class PaymentMethod(models.TextChoices):
+        CASH_ON_DELIVERY = "cash_on_delivery", "Teslim Anında Ödeme"
+
     customer = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders"
     )
@@ -25,6 +32,10 @@ class Order(TimestampedModel):
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
     notes = models.TextField(blank=True)
+    payment_method = models.CharField(max_length=50, choices=PaymentMethod.choices, default=PaymentMethod.CASH_ON_DELIVERY)
+    delivery_type = models.CharField(max_length=50, choices=DeliveryType.choices, default=DeliveryType.CUSTOMER_PICKUP)
+    delivery_address = models.TextField(blank=True, help_text="Oda numarası, blok bilgisi")
+    delivery_phone = models.CharField(max_length=32, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
