@@ -561,7 +561,7 @@ npm run test -- --watch
 ## Proje Yapısı
 
 ```
-yurt-market-v1/
+yurt-market-v2/
 ├── config/              # Django proje ayarları
 │   ├── settings/        # Environment-specific settings (dev, prod)
 │   ├── urls.py          # Ana URL yapılandırması
