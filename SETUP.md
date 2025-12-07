@@ -35,7 +35,7 @@ npm --version      # npm 10.8.2+ olmalı
 
 ```bash
 git clone <repository-url>
-cd yurt-market-v1
+cd yurt-market-v2
 ```
 
 ### 2. Backend Kurulumu
