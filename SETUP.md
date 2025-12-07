@@ -174,6 +174,26 @@ python manage.py shell
 >>> exit()
 ```
 
+**⚠️ ÖNEMLİ: Veritabanı ve Veri Paylaşımı**
+
+Her geliştirici kendi yerel veritabanını kullanır:
+- `db.sqlite3` dosyası `.gitignore`'da olduğu için git'e commit edilmez
+- Her geliştirici `python manage.py migrate` çalıştırdığında kendi boş veritabanını oluşturur
+- `scripts/seed_data.py` çalıştırıldığında sadece temel veriler (yurtlar, abonelik planları) oluşturulur
+- **Kullanıcılar, ürünler, siparişler gibi veriler her geliştiricide ayrıdır**
+
+**Yani:**
+- ✅ Her geliştirici aynı yurt listesini görür (seed_data.py ile)
+- ✅ Her geliştirici aynı abonelik planlarını görür (seed_data.py ile)
+- ❌ Kullanıcılar paylaşılmaz - her geliştirici kendi admin kullanıcısını oluşturur
+- ❌ Ürünler paylaşılmaz - her geliştirici kendi test ürünlerini oluşturur
+- ❌ Siparişler paylaşılmaz - her geliştirici kendi test siparişlerini oluşturur
+
+**Test Verileri Oluşturma:**
+Eğer test için örnek kullanıcılar, ürünler veya siparişler oluşturmak isterseniz:
+1. Django Admin Panel'den manuel olarak oluşturabilirsiniz: `http://127.0.0.1:8000/admin/`
+2. Veya frontend'den kayıt olup test verileri oluşturabilirsiniz: `http://localhost:5173/auth/register`
+
 #### 2.6. Superuser (Admin) Oluşturun
 
 **Yöntem 1: Script Kullanarak (Önerilen)**
@@ -615,6 +635,65 @@ yurt-market-v1/
 ├── .env.example        # Backend environment variables örneği (yoksa oluşturulmalı)
 ├── db.sqlite3          # SQLite veritabanı (migrate sonrası oluşur)
 └── manage.py           # Django yönetim scripti
+```
+
+## Veritabanı ve Veri Yönetimi
+
+### Her Geliştirici Kendi Veritabanını Kullanır
+
+Proje yapısı gereği, her geliştirici kendi yerel veritabanını (`db.sqlite3`) kullanır:
+
+1. **Veritabanı Git'e Commit Edilmez**
+   - `db.sqlite3` dosyası `.gitignore`'da olduğu için git'e commit edilmez
+   - Her geliştirici `python manage.py migrate` çalıştırdığında kendi boş veritabanını oluşturur
+
+2. **Paylaşılan Veriler (Seed Data)**
+   - ✅ **Yurtlar:** `scripts/seed_data.py` ile 10 örnek yurt oluşturulur (her geliştiricide aynı)
+   - ✅ **Abonelik Planları:** Standard plan (199₺/ay, 25 ürün) oluşturulur (her geliştiricide aynı)
+
+3. **Paylaşılmayan Veriler (Her Geliştiricide Ayrı)**
+   - ❌ **Kullanıcılar:** Her geliştirici kendi admin ve test kullanıcılarını oluşturur
+   - ❌ **Ürünler:** Her geliştirici kendi test ürünlerini oluşturur
+   - ❌ **Siparişler:** Her geliştirici kendi test siparişlerini oluşturur
+   - ❌ **Abonelikler:** Her geliştirici kendi aboneliklerini oluşturur
+
+### Test Verileri Oluşturma
+
+**Yöntem 1: Django Admin Panel**
+1. Admin kullanıcı ile giriş yapın: `http://127.0.0.1:8000/admin/`
+2. İstediğiniz modeli seçin (Users, Products, Orders, vb.)
+3. "Add" butonuna tıklayarak yeni kayıtlar oluşturun
+
+**Yöntem 2: Frontend Üzerinden**
+1. Yeni kullanıcı kaydedin: `http://localhost:5173/auth/register`
+2. Giriş yapın ve ürünler/siparişler oluşturun
+
+**Yöntem 3: Django Shell**
+```bash
+python manage.py shell
+>>> from modules.users.models import User
+>>> from modules.dorms.models import Dorm
+>>> dorm = Dorm.objects.first()
+>>> user = User.objects.create_user(email="test@example.com", password="test123", dorm=dorm, role="student")
+>>> exit()
+```
+
+### Veritabanını Sıfırlama
+
+Eğer veritabanını sıfırlamak isterseniz:
+
+```bash
+# Tüm verileri sil (DİKKAT: Geri alınamaz!)
+python manage.py flush
+
+# Migration'ları tekrar çalıştır
+python manage.py migrate
+
+# Seed data'yı tekrar ekle
+python scripts/seed_data.py
+
+# Admin kullanıcıyı tekrar oluştur
+python scripts/create_superuser.py
 ```
 
 ## Sonraki Adımlar
