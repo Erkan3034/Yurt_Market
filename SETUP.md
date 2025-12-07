@@ -35,7 +35,7 @@ npm --version      # npm 10.8.2+ olmalı
 
 ```bash
 git clone <repository-url>
-cd yurt-market-v1
+cd yurt-market-v2
 ```
 
 ### 2. Backend Kurulumu
@@ -354,20 +354,20 @@ celery -A config worker --loglevel=info
 
 1. **Terminal 1 - Backend:**
    ```bash
-   cd yurt-market-v1
+   cd yurt-market-v2
    venv\Scripts\activate  # Windows (veya source venv/bin/activate)
    python manage.py runserver
    ```
 
 2. **Terminal 2 - Frontend:**
    ```bash
-   cd yurt-market-v1/frontend
+   cd yurt-market-v2/frontend
    npm run dev
    ```
 
 3. **Terminal 3 - Celery (Opsiyonel):**
    ```bash
-   cd yurt-market-v1
+   cd yurt-market-v2
    venv\Scripts\activate
    celery -A config worker --loglevel=info
    ```
@@ -581,7 +581,7 @@ npm run test -- --watch
 ## Proje Yapısı
 
 ```
-yurt-market-v1/
+yurt-market-v2/
 ├── config/              # Django proje ayarları
 │   ├── settings/        # Environment-specific settings (dev, prod)
 │   ├── urls.py          # Ana URL yapılandırması
