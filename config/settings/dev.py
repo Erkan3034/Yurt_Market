@@ -29,3 +29,17 @@ INTERNAL_IPS = ["127.0.0.1"]
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+
+
+
+# Development için Redis olmadan çalış (locmem cache kullan)
+CACHES = {  # type: ignore[name-defined]
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
+
+# Session için database backend kullan (Redis gerektirmez)
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
