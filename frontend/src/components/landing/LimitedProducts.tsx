@@ -83,7 +83,7 @@ export const LimitedProducts = ({ products, loading }: LimitedProductsProps) => 
                       Satın almak için giriş yapmalısınız
                     </p>
                     <a
-                      href="/login" // Login sayfanızın yolu
+                      href="/auth/login" // Login sayfanızın yolu
                       className="px-6 py-2 bg-white text-slate-900 rounded-full font-bold hover:bg-slate-100 transition-colors shadow-lg"
                       onClick={(e) => {
                         e.stopPropagation(); // Linke tıklayınca kartın kapanmasını engelle

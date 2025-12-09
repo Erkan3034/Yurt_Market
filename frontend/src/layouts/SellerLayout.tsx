@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { DashboardShell } from "../components/layout/DashboardShell";
 import { Package, ClipboardCheck, BarChart3, CreditCard, LayoutDashboard } from "lucide-react";
@@ -15,6 +16,8 @@ const menu = [
 ];
 
 export const SellerLayout = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const queryClient = useQueryClient();
   const user = authStore((state) => state.user);
   const storeIsOpen = user?.seller_store_is_open ?? true;
@@ -24,7 +27,6 @@ export const SellerLayout = () => {
     onSuccess: async (data) => {
       toast.success(data.message);
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      // User bilgisini güncelle
       const { fetchCurrentUser } = await import("../services/auth");
       await fetchCurrentUser();
     },
@@ -32,7 +34,12 @@ export const SellerLayout = () => {
   });
 
   return (
-    <DashboardShell sidebar={menu}>
+    <DashboardShell 
+      sidebar={menu} 
+      isOpen={isSidebarOpen} 
+      onOpen={() => setIsSidebarOpen(true)} // BURASI YENİ EKLENDİ
+      onClose={() => setIsSidebarOpen(false)}
+    >
       <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
         <div className="flex items-center gap-3">
           <div className={`h-3 w-3 rounded-full ${storeIsOpen ? "bg-green-500" : "bg-red-500"}`} />
@@ -49,15 +56,11 @@ export const SellerLayout = () => {
               : "bg-green-50 text-green-600 hover:bg-green-100"
           } disabled:opacity-50`}
         >
-          {toggleMutation.isPending
-            ? "Güncelleniyor..."
-            : storeIsOpen
-            ? "Mağazayı Kapat"
-            : "Mağazayı Aç"}
+          {toggleMutation.isPending ? "Güncelleniyor..." : storeIsOpen ? "Mağazayı Kapat" : "Mağazayı Aç"}
         </button>
       </div>
+      
       <Outlet />
     </DashboardShell>
   );
 };
-
