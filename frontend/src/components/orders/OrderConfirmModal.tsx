@@ -55,7 +55,7 @@ export const OrderConfirmModal = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Sipariş Onayı">
-      <div className="space-y-6">
+      <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-2">
         {/* Sipariş Özeti */}
         <div>
           <h4 className="mb-3 text-sm font-semibold text-slate-900">Sipariş Özeti</h4>

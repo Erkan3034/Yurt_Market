@@ -5,7 +5,7 @@ Kapsayıcı Div: ProductCard bileşeni, üzerine katman gelebilmesi için relati
 Overlay (Katman): Seçili kartın üzerinde beliren siyah arka plan, uyarı yazısı ve "Giriş Yap" butonu eklendi.
 Tıklama Kontrolü: Karta tıklandığında uyarıyı açan, tekrar tıklandığında kapatan fonksiyon yazıldı.
 
-Hamburger menü entegrasyonu sürecinde yaptığımız tüm değişiklikler:
+Hamburger menü entegrasyonu sürecinde yapılan tüm değişiklikler:
 
 1. src/layouts/SellerLayout.tsx (Kontrol Merkezi)
 -Değişiklik: Sidebar'ın açık/kapalı durumunu yöneten state (isSidebarOpen) burada tanımlandı.
@@ -18,3 +18,5 @@ Amaç: Menüyü açma fonksiyonunu (onOpen) buradan DashboardShell bileşenine a
 
 3. src/pages/seller/DashboardPage.tsx (İçerik Sayfası)
 -Değişiklik: Daha önce sayfanın içine koyduğumuz geçici menü butonu ve ilgili kodlar (useOutletContext) silindi. Artık burası sadece grafik ve veri gösteriyor.
+
+
