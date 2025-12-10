@@ -20,3 +20,13 @@ Amaç: Menüyü açma fonksiyonunu (onOpen) buradan DashboardShell bileşenine a
 -Değişiklik: Daha önce sayfanın içine koyduğumuz geçici menü butonu ve ilgili kodlar (useOutletContext) silindi. Artık burası sadece grafik ve veri gösteriyor.
 
 
+src/pages/dashboard/ExplorePage.tsx (Ürün Keşfetme Sayfası);
+Değişiklik 1: Sayfanın ana iskeleti, mobilde alt alta, masaüstünde yan yana dizilecek şekilde (flex-col lg:flex-row) güncellendi.
+Değişiklik 2: Masaüstü sepet kenar çubuğu (Sidebar), mobilde ekranı kaplamaması için gizlendi (hidden lg:block).
+Değişiklik 3: Ürün kartları ızgarası (Grid), mobilde tek sütun, tablette 2 ve masaüstünde 3 sütun olacak şekilde ayarlandı.
+Değişiklik 4: Sayfanın en altına yapışık duran (fixed bottom-0), sepette ürün varsa görünen ve toplam tutarı gösteren mobil alt bar eklendi.
+Değişiklik 5: Mobil alt bara tıklandığında açılan, sepet detaylarını içeren ve aşağıdan yukarı kayan mobil sepet paneli (Sheet) eklendi.
+
+
+src/components/orders/OrderConfirmModal.tsx (Sipariş Onay Penceresi);
+Değişiklik 1: Modalı saran beyaz kutuya maksimum yükseklik (max-h-[75vh]) ve dikey kaydırma (overflow-y-auto) özelliği eklendi; böylece küçük ekranlarda butonların ekran dışında kalması engellendi.
