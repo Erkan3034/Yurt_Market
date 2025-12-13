@@ -4,9 +4,19 @@ from .models import Product, ProductImage
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    
     class Meta:
         model = ProductImage
         fields = ["id", "image", "created_at"]
+    
+    def get_image(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        return None
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -40,8 +50,19 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
     def get_image_url(self, obj):
-        first_image = obj.images.first()
+        # Try to get first image from prefetched images or query
+        first_image = None
+        if hasattr(obj, '_prefetched_objects_cache') and 'images' in obj._prefetched_objects_cache:
+            prefetched_images = obj._prefetched_objects_cache['images']
+            if prefetched_images:
+                first_image = prefetched_images[0]
+        else:
+            first_image = obj.images.first()
+        
         if first_image and first_image.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(first_image.image.url)
             return first_image.image.url
         return None
 

@@ -8,6 +8,7 @@ import { AuthBootstrapper } from "./components/routing/AuthBootstrapper";
 import { CustomerLayout } from "./layouts/CustomerLayout";
 import { SellerLayout } from "./layouts/SellerLayout";
 import { ExplorePage } from "./pages/customer/ExplorePage";
+import { ProductDetailPage } from "./pages/customer/ProductDetailPage";
 import { OrdersPage } from "./pages/customer/OrdersPage";
 import { SubscriptionPage } from "./pages/customer/SubscriptionPage";
 import { ProductsPage } from "./pages/seller/ProductsPage";
@@ -46,6 +47,7 @@ function App() {
             }
           >
             <Route path="explore" element={<ExplorePage />} />
+            <Route path="product/:id" element={<ProductDetailPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route index element={<Navigate to="explore" replace />} />
           </Route>

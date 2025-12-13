@@ -79,13 +79,35 @@ class ProductService:
 
         stock_quantity: Optional[int] = data.pop("stock_quantity", None)
         updated_field_names = set(data.keys())
+        
+        # Update product fields
         self.product_repo.update(product, **data)
+        
+        # Update stock if provided
         if stock_quantity is not None and product.stock:
             product.stock.quantity = stock_quantity
             product.stock.save(update_fields=["quantity"])
             updated_field_names.add("stock_quantity")
+            
+            # Refresh product to get latest state
+            product.refresh_from_db()
+            
+            # Update is_out_of_stock based on stock quantity
+            if stock_quantity > 0:
+                if product.is_out_of_stock:
+                    product.is_out_of_stock = False
+                    product.save(update_fields=["is_out_of_stock"])
+                    updated_field_names.add("is_out_of_stock")
+            else:
+                # Stock is 0
+                if not product.is_out_of_stock:
+                    product.is_out_of_stock = True
+                    product.save(update_fields=["is_out_of_stock"])
+                    updated_field_names.add("is_out_of_stock")
+        
         if "is_active" in updated_field_names:
             self._sync_usage_slots(seller)
+            
         logger.info(
             "product.updated",
             product_id=product.id,

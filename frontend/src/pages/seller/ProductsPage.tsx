@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchSellerProducts, createProduct, deleteProduct, updateProduct, uploadProductImage, deleteProductImage, fetchCategories } from "../../services/products";
+import { ProductImage } from "../../types";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { Spinner } from "../../components/ui/Spinner";
 import { Modal } from "../../components/ui/Modal";
 import { getErrorMessage } from "../../lib/errors";
-import { Trash2, Eye, EyeOff, Pencil, Upload, X, ImageIcon } from "lucide-react";
+import { Trash2, Eye, EyeOff, Pencil, X, ImageIcon } from "lucide-react";
 import { Product } from "../../types";
 
 interface ProductForm {
@@ -141,12 +142,18 @@ export const ProductsPage = () => {
   });
 
   const deleteImageMutation = useMutation({
-    mutationFn: (productId: number) => deleteProductImage(productId),
-    onSuccess: () => {
+    mutationFn: ({ productId, imageId }: { productId: number; imageId: number }) => 
+      deleteProductImage(productId, imageId),
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["seller-products"] });
       toast.success("Fotoğraf silindi");
       if (editingProduct) {
-        setEditingProduct({ ...editingProduct, image_url: null, images: [] });
+        const updatedImages = editingProduct.images?.filter(img => img.id !== variables.imageId) || [];
+        setEditingProduct({ 
+          ...editingProduct, 
+          images: updatedImages,
+          image_url: updatedImages[0]?.image || null 
+        });
       }
     },
     onError: (error: unknown) => {
@@ -344,17 +351,23 @@ export const ProductsPage = () => {
                     <div className="mb-3 flex gap-3">
                       {/* Product Image Thumbnail */}
                       <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                        {product.image_url ? (
-                          <img
-                            src={product.image_url}
-                            alt={product.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <ImageIcon className="h-6 w-6 text-slate-300" />
-                          </div>
-                        )}
+                        {(() => {
+                          const imgSrc = product.image_url || (product.images && product.images.length > 0 ? product.images[0].image : null);
+                          return imgSrc ? (
+                            <img
+                              src={imgSrc}
+                              alt={product.name}
+                              className="h-full w-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center">
+                              <ImageIcon className="h-6 w-6 text-slate-300" />
+                            </div>
+                          );
+                        })()}
                       </div>
                       
                       <div className="flex-1 min-w-0">
@@ -577,66 +590,80 @@ export const ProductsPage = () => {
               </select>
             </div>
 
-            {/* Product Image */}
+            {/* Product Images - Max 4 */}
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Ürün Fotoğrafı
+                Ürün Fotoğrafları <span className="text-slate-400">(En fazla 4 adet)</span>
               </label>
               
-              {/* Current or Preview Image */}
-              {(imagePreview || editingProduct.image_url) && (
-                <div className="relative mb-3 inline-block">
-                  <img
-                    src={imagePreview || editingProduct.image_url || ""}
-                    alt="Ürün fotoğrafı"
-                    className="h-24 w-24 rounded-lg object-cover border border-slate-200"
+              {/* Existing Images Grid */}
+              <div className="mb-3 flex flex-wrap gap-2">
+                {editingProduct.images && editingProduct.images.length > 0 && editingProduct.images.map((img: ProductImage) => (
+                  <div key={img.id} className="relative">
+                    <img
+                      src={img.image}
+                      alt="Ürün fotoğrafı"
+                      className="h-20 w-20 rounded-lg object-cover border border-slate-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => deleteImageMutation.mutate({ productId: editingProduct.id, imageId: img.id })}
+                      disabled={deleteImageMutation.isPending}
+                      className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600 disabled:opacity-50"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                
+                {/* Preview for newly selected image */}
+                {imagePreview && (
+                  <div className="relative">
+                    <img
+                      src={imagePreview}
+                      alt="Yeni fotoğraf"
+                      className="h-20 w-20 rounded-lg object-cover border-2 border-brand-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedImage(null);
+                        setImagePreview(null);
+                      }}
+                      className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              {/* Upload Button - Show only if less than 4 images */}
+              {((editingProduct.images?.length || 0) + (selectedImage ? 1 : 0)) < 4 && (
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
                   />
                   <button
                     type="button"
-                    onClick={() => {
-                      if (imagePreview) {
-                        setSelectedImage(null);
-                        setImagePreview(null);
-                      } else if (editingProduct.image_url) {
-                        deleteImageMutation.mutate(editingProduct.id);
-                      }
-                    }}
-                    disabled={deleteImageMutation.isPending}
-                    className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600 disabled:opacity-50"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600"
                   >
-                    <X className="h-3 w-3" />
+                    <ImageIcon className="h-4 w-4" />
+                    Fotoğraf Ekle
                   </button>
+                  <p className="mt-1 text-xs text-slate-500">
+                    JPG, PNG veya GIF (max. 5MB) - {4 - (editingProduct.images?.length || 0) - (selectedImage ? 1 : 0)} fotoğraf daha ekleyebilirsiniz
+                  </p>
                 </div>
               )}
-              
-              {/* Upload Button */}
-              <div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageSelect}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:border-brand-500 hover:bg-brand-50 hover:text-brand-600"
-                >
-                  {imagePreview || editingProduct.image_url ? (
-                    <>
-                      <Upload className="h-4 w-4" />
-                      Fotoğrafı Değiştir
-                    </>
-                  ) : (
-                    <>
-                      <ImageIcon className="h-4 w-4" />
-                      Fotoğraf Yükle
-                    </>
-                  )}
-                </button>
-                <p className="mt-1 text-xs text-slate-500">JPG, PNG veya GIF (max. 5MB)</p>
-              </div>
+              {((editingProduct.images?.length || 0) + (selectedImage ? 1 : 0)) >= 4 && (
+                <p className="text-xs text-amber-600">Maksimum fotoğraf sayısına ulaşıldı (4/4)</p>
+              )}
             </div>
 
             {/* Buttons */}

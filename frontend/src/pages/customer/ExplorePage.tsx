@@ -9,7 +9,7 @@ import { OrderConfirmModal } from "../../components/orders/OrderConfirmModal";
 import { toast } from "react-hot-toast";
 import { getErrorMessage } from "../../lib/errors";
 import { Search, ShoppingCart, User, Plus, Minus, X, ChevronUp, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 type SortOption = "newest" | "name" | "price_asc";
 
@@ -113,6 +113,7 @@ const CartContent = ({
 // --- Ana Bileşen ---
 export const ExplorePage = () => {
   const user = authStore((state) => state.user);
+  const navigate = useNavigate();
   const dormId = user?.dorm_id;
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
@@ -396,9 +397,16 @@ export const ExplorePage = () => {
           ) : (
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((product) => {
-                const imageUrl = product.image_url || getProductImage(product.name);
+                // Try image_url first, then images array, then fallback
+                const imageUrl = (product.image_url && product.image_url.trim() !== '') ? product.image_url : 
+                  (product.images && product.images.length > 0 && product.images[0].image ? product.images[0].image : null) ||
+                  getProductImage(product.name);
                 return (
-                   <div key={product.id} className="group rounded-2xl border border-slate-200 bg-white overflow-hidden transition-all hover:shadow-lg">
+                   <div 
+                    key={product.id} 
+                    className="group rounded-2xl border border-slate-200 bg-white overflow-hidden transition-all hover:shadow-lg cursor-pointer"
+                    onClick={() => navigate(`/app/product/${product.id}`)}
+                  >
                     <div className="relative aspect-square w-full bg-slate-100 overflow-hidden">
                       <img src={imageUrl} alt={product.name} className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = getProductImage(product.name); }} />
                       {product.category_name && (
@@ -424,7 +432,10 @@ export const ExplorePage = () => {
                         )}
                       </div>
                       <button
-                        onClick={() => addToCart(product.id)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent navigation when clicking button
+                          addToCart(product.id);
+                        }}
                         disabled={product.is_out_of_stock || product.seller_store_is_open === false}
                         className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
                           product.is_out_of_stock || product.seller_store_is_open === false

@@ -12,6 +12,11 @@ export const fetchDormProducts = async (dormId?: number) => {
   return data;
 };
 
+export const fetchProductById = async (id: number) => {
+  const { data } = await api.get<Product>(`/api/products/${id}`);
+  return data;
+};
+
 export const fetchSellerProducts = async () => {
   const { data } = await api.get<Product[]>("/api/products/seller/products");
   return data;
@@ -71,7 +76,11 @@ export const uploadProductImage = async (productId: number, imageFile: File) => 
   return data;
 };
 
-export const deleteProductImage = async (productId: number) => {
-  await api.delete(`/api/products/seller/products/${productId}/delete_image`);
+export const deleteProductImage = async (productId: number, imageId: number) => {
+  await api.delete(`/api/products/seller/products/${productId}/delete_image/${imageId}`);
+};
+
+export const deleteAllProductImages = async (productId: number) => {
+  await api.delete(`/api/products/seller/products/${productId}/delete_all_images`);
 };
 
